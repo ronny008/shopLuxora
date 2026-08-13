@@ -1,0 +1,62 @@
+import { api } from '@/lib/services/api';
+import Link from 'next/link';
+import { deleteUserAction } from './actions';
+
+export default async function AdminUsersPage() {
+  const users = await api.auth.getAll();
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold uppercase tracking-[0.2em] text-black">Users</h1>
+      </div>
+
+      <div className="bg-white border border-black rounded-none">
+        <div className="px-6 py-4 border-b border-black flex items-center justify-between">
+          <input
+            type="text"
+            placeholder="SEARCH USERS..."
+            className="sharp-input w-64"
+          />
+          <div className="flex gap-2">
+            <button className="px-4 py-2 border border-black text-xs font-bold uppercase tracking-wider text-black hover:bg-black hover:text-white transition-colors rounded-none">Filter</button>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-black">
+            <thead className="bg-white">
+              <tr>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-black uppercase tracking-wider border-b border-black">Name</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-black uppercase tracking-wider border-b border-black">Email</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-black uppercase tracking-wider border-b border-black">Role</th>
+                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-black uppercase tracking-wider border-b border-black">Status</th>
+                <th scope="col" className="relative px-6 py-4 border-b border-black"><span className="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-black/10">
+              {users.map((user) => (
+                <tr key={user._id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">{user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs text-black">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">{user.role}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`inline-flex items-center px-3 py-1 text-white text-xs font-bold uppercase tracking-wider rounded-none ${user.status === 'active' ? 'bg-black' : 'bg-red-600'}`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
+                    <Link href={`/dashboard/users/${user._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
+                    <form action={deleteUserAction}>
+                      <input type="hidden" name="id" value={user._id} />
+                      <button type="submit" className="text-red-600 hover:underline font-bold cursor-pointer">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

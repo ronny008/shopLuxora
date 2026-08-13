@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Pacifico&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #FFFFFF; /* Pure white background */
+  --foreground: #000000; /* Pure black text */
+  --surface: #F5F5F5; /* Light gray for cards/sections */
+  --border: #000000; /* Strict black borders */
+  --ring: #000000;
+  --font-oswald: 'Oswald', sans-serif;
+  --font-pacifico: 'Pacifico', cursive;
+  --font-inter: 'Inter', sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-oswald);
+}
+
+.font-script {
+  font-family: var(--font-pacifico);
+}
+
+.font-sans-clean {
+  font-family: var(--font-inter);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom Letter Spacing */
+  --tracking-logo: 0.3em;
+  --tracking-header: 0.2em;
+  --tracking-btn: 0.15em;
+
+  /* Force sharp corners */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius: 0px;
+
+  /* Force no shadows */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --shadow-inner: none;
+  --shadow: none;
+
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #FFFFFF;
+    --foreground: #000000;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Luxora Components */
+@layer utilities {
+  .btn-solid {
+    @apply w-full py-4 px-6 border border-black bg-black text-white font-bold text-xs uppercase tracking-[0.15em] hover:bg-white hover:text-black transition-colors duration-300 rounded-none flex items-center justify-center;
+  }
+  
+  .btn-outline {
+    @apply w-full py-4 px-6 border border-black bg-white text-black font-bold text-xs uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-colors duration-300 rounded-none flex items-center justify-center;
+  }
+
+  .sharp-input {
+    @apply border border-slate-300 px-4 py-3 text-sm focus:border-black focus:ring-0 focus:outline-none rounded-none transition-colors;
+  }
+}
+
+/* Custom modern scrollbar for a premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333333;
+}
+
+@media print {
+  @page {
+    margin: 0;
+  }
+}
+
