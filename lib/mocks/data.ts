@@ -202,7 +202,7 @@ export const mockProducts: Product[] = [
     colors: ['Black', 'Dark Espresso'],
     isFeatured: false,
     isSoldOut: false,
-    stock: 18,
+    stock: 18,//add
     images: [
       'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop',
     ],
