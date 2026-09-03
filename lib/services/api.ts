@@ -103,17 +103,59 @@ export const api = {
     getByUser: cache(async (userId: string): Promise<Order[]> => {
       try {
         await dbConnect();
-        const docs = await OrderModel.find({ userId }).sort({ createdAt: -1 }).lean();
+        const docs = await OrderModel.find({
+          $or: [{ userId }, { userId: 'Customer' }]
+        }).sort({ createdAt: -1 }).lean();
         return docs.map(mapDoc<Order>);
       } catch (err) {
         console.warn('MongoDB query error user orders:', err);
         return [];
       }
+    }),
+    getById: cache(async (idOrNumber: string): Promise<Order | undefined> => {
+      try {
+        await dbConnect();
+        let doc = null;
+        if (idOrNumber.match(/^[0-9a-fA-F]{24}$/)) {
+          doc = await OrderModel.findById(idOrNumber).lean();
+        }
+        if (!doc) {
+          doc = await OrderModel.findOne({
+            $or: [{ _id: idOrNumber }, { orderNumber: idOrNumber }]
+          }).lean();
+        }
+        if (doc) return mapDoc<Order>(doc);
+      } catch (err) {
+        console.warn('MongoDB query error order by ID:', err);
+      }
+      return undefined;
     })
   },
   auth: {
     getCurrentUser: cache(async (): Promise<User | null> => {
       try {
+        const { getAuthCookie, verifySessionToken } = await import('../auth');
+        const token = await getAuthCookie();
+        if (token) {
+          const payload = verifySessionToken(token);
+          if (payload && payload.userId) {
+            try {
+              await dbConnect();
+              const doc = await UserModel.findById(payload.userId).lean();
+              if (doc) return mapDoc<User>(doc);
+            } catch {
+              // fallback to session payload if db fails
+            }
+            return {
+              _id: payload.userId,
+              name: payload.name || 'User',
+              email: payload.email || 'user@example.com',
+              role: payload.role || 'Customer',
+              status: 'active',
+              createdAt: new Date().toISOString(),
+            };
+          }
+        }
         await dbConnect();
         const doc = await UserModel.findOne({ role: 'Customer' }).lean();
         if (doc) return mapDoc<User>(doc);

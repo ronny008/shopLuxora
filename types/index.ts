@@ -81,6 +81,9 @@ export interface Order {
   payment: {
     method: string;
     status: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+    razorpaySignature?: string;
   };
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';

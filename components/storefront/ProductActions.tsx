@@ -21,6 +21,8 @@ export function ProductActions({ product }: { product: Product }) {
 
   const isWishlisted = wishlistIds.includes(product._id);
 
+  const [isAdded, setIsAdded] = useState(false);
+
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1);
   };
@@ -31,7 +33,10 @@ export function ProductActions({ product }: { product: Product }) {
 
   const handleAddToCart = () => {
     addToCart(product, quantity, selectedSize);
-    // Optional: add a success toast or notification here
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 2500);
   };
 
   const handleBuyNow = () => {
@@ -83,9 +88,24 @@ export function ProductActions({ product }: { product: Product }) {
           <button 
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className="flex-1 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-black/90 transition-colors h-12 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`flex-1 text-xs font-bold uppercase tracking-widest transition-all duration-300 h-12 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+              isAdded 
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md' 
+                : 'bg-black text-white hover:bg-black/90'
+            }`}
           >
-            {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+            {product.stock === 0 ? (
+              'Sold Out'
+            ) : isAdded ? (
+              <>
+                <svg className="w-4 h-4 text-white animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                </svg>
+                Added to Cart!
+              </>
+            ) : (
+              'Add to Cart'
+            )}
           </button>
         </div>
 

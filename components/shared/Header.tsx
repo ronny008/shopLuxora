@@ -1,13 +1,14 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Search, User, Heart, ShoppingBag } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useWishlistStore } from '@/lib/store/useWishlistStore';
 import { useCartStore } from '@/lib/store/useCartStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import { LogOut, ShieldCheck } from 'lucide-react';
+import { LogOut, ShieldCheck, Package } from 'lucide-react';
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -17,7 +18,7 @@ export function Header() {
   const router = useRouter();
 
   const { wishlistIds } = useWishlistStore();
-  const { getTotalItems } = useCartStore();
+  const { getTotalItems, openCart } = useCartStore();
   const { user, logout, checkAuth } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -45,6 +46,25 @@ export function Header() {
     }
   };
 
+  const pathname = usePathname();
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
+
+  const navItems = [
+    { id: 'home', label: 'HOME', href: '/', hasDropdown: true },
+    { id: 'shop', label: 'SHOP', href: '/products', hasDropdown: true },
+    { id: 'contact', label: 'CONTACT', href: '/contact', hasDropdown: false },
+  ];
+
+  const getActiveNav = () => {
+    if (pathname === '/') return 'home';
+    if (pathname.startsWith('/contact')) return 'contact';
+    if (pathname.startsWith('/products') || pathname.startsWith('/shop') || pathname.startsWith('/checkout') || pathname.startsWith('/categories')) return 'shop';
+    return 'shop';
+  };
+
+  const activeNav = getActiveNav();
+  const currentIndicator = hoveredNav || activeNav;
+
   return (
     <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white transition-all duration-300 ${isScrolled ? 'shadow-sm' : ''}`}>
       <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4 lg:px-8 relative">
@@ -59,23 +79,48 @@ export function Header() {
 
         {/* Center: Navigation */}
         <div className="flex items-center justify-center">
-          <nav className="hidden md:flex items-center space-x-8 text-[12px] font-semibold tracking-wider text-slate-800">
-            <Link href="/" className="flex items-center gap-1 hover:text-red-600 transition-colors uppercase">
-              HOME
-              <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </Link>
-            <Link href="/products" className="relative flex items-center gap-1 hover:text-red-600 transition-colors uppercase font-bold text-black group py-1">
-              SHOP
-              <svg className="w-3 h-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-              <span className="absolute bottom-0 left-0 w-full h-[2px] bg-black"></span>
-            </Link>
-            <Link href="/contact" className="hover:text-red-600 transition-colors uppercase">
-              CONTACT
-            </Link>
+          <nav
+            className="hidden md:flex items-center space-x-8 text-[12px] tracking-wider"
+            onMouseLeave={() => setHoveredNav(null)}
+          >
+            {navItems.map((item) => {
+              const isCurrent = currentIndicator === item.id;
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onMouseEnter={() => setHoveredNav(item.id)}
+                  className={`relative flex items-center gap-1 py-1 transition-colors uppercase ${
+                    isCurrent ? 'font-bold text-black' : 'font-semibold text-slate-700 hover:text-black'
+                  }`}
+                >
+                  {item.label}
+                  {item.hasDropdown && (
+                    <svg
+                      className={`w-3 h-3 transition-colors ${
+                        isCurrent ? 'text-black' : 'text-slate-500'
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  )}
+                  {isCurrent && (
+                    <motion.span
+                      layoutId="header-nav-underline"
+                      className="absolute bottom-0 left-0 right-0 h-[2px] bg-black pointer-events-none"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 450,
+                        damping: 32,
+                      }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
         </div>
 
@@ -127,6 +172,15 @@ export function Header() {
                     My Profile
                   </Link>
 
+                  <Link
+                    href="/orders"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium text-slate-900"
+                  >
+                    <Package className="w-3.5 h-3.5" />
+                    My Orders
+                  </Link>
+
                   {user.role === 'Admin' && (
                     <Link
                       href="/dashboard"
@@ -159,12 +213,21 @@ export function Header() {
               {isMounted ? wishlistIds.length : 0}
             </span>
           </Link>
-          <Link href="/cart" className="relative text-slate-800 hover:text-black transition-colors p-1" aria-label="Cart">
+          <button
+            type="button"
+            onClick={openCart}
+            className="relative text-slate-800 hover:text-black transition-colors p-1 cursor-pointer"
+            aria-label="Cart"
+            suppressHydrationWarning
+          >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#D32F2F] text-[9px] font-bold text-white">
+            <span
+              className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#D32F2F] text-[9px] font-bold text-white"
+              suppressHydrationWarning
+            >
               {isMounted ? getTotalItems() : 0}
             </span>
-          </Link>
+          </button>
         </div>
       </div>
 

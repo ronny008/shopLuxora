@@ -3,6 +3,7 @@
 import { Header } from '@/components/shared/Header';
 import { Footer } from '@/components/shared/Footer';
 import { CompareFloatingBar } from '@/components/shared/CompareFloatingBar';
+import { CartDrawer } from '@/components/shared/CartDrawer';
 import { useCompareStore } from '@/lib/store/useCompareStore';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -47,6 +48,7 @@ export default function StorefrontLayout({
       <main className="flex-1">
         {children}
         <CompareFloatingBar />
+        <CartDrawer />
       </main>
 
       {/* Floating Scroll To Top Button Bottom Right */}

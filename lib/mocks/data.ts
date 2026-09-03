@@ -11,6 +11,14 @@ export const mockUsers: User[] = [
   },
   {
     _id: 'user-2',
+    name: 'Ronny User',
+    email: 'ronny@gmail.com',
+    role: 'Customer',
+    status: 'active',
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'user-3',
     name: 'Sarah Connor',
     email: 'sarah@example.com',
     role: 'Customer',

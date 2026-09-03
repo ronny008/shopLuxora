@@ -14,6 +14,9 @@ export interface IOrder extends Document {
   payment: {
     method: string;
     status: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+    razorpaySignature?: string;
   };
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
@@ -38,18 +41,26 @@ const OrderSchema = new Schema<IOrder>(
     payment: {
       method: { type: String, required: true },
       status: { type: String, required: true },
+      razorpayOrderId: { type: String, index: true },
+      razorpayPaymentId: { type: String },
+      razorpaySignature: { type: String },
     },
     total: { type: Number, required: true },
     status: {
       type: String,
       enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-      default: 'processing',
+      default: 'pending',
     },
   },
   { timestamps: true }
 );
 
+if (process.env.NODE_ENV !== 'production') {
+  delete (mongoose.models as any).Order;
+}
+
 export const OrderModel: Model<IOrder> =
   mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);
 
 export default OrderModel;
+

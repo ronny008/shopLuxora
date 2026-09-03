@@ -182,7 +182,7 @@ export default async function StorefrontHomePage() {
           <FadeIn delay={0.4} className="flex flex-col items-center">
             <User className="w-8 h-8 text-[#f26552] mb-4 stroke-[1]" />
             <h4 className="text-[14px] font-bold uppercase tracking-wide text-black mb-3">Contact Us</h4>
-            <p className="text-[14px] text-gray-600 leading-relaxed max-w-[240px]">For all inquiries, please contact us via email at hinlersclothing@gmail.com</p>
+            <p className="text-[14px] text-gray-600 leading-relaxed max-w-[240px]">For all inquiries, please contact us via email at luxoraclothing@gmail.com</p>
           </FadeIn>
         </div>
       </section>
