@@ -6,6 +6,8 @@ import { FadeIn } from '@/components/shared/FadeIn';
 import Image from 'next/image';
 import { Package, Truck, Gem, User } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function StorefrontHomePage() {
   const products = await api.products.getAll();
   

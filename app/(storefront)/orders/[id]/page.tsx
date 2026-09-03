@@ -28,7 +28,6 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   };
 
   // Define tracking steps
-  const statusList = ['placed', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
   const currentStatusIndex = (() => {
     const s = order.status.toLowerCase();
     if (s === 'delivered') return 4;

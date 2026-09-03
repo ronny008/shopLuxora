@@ -8,7 +8,7 @@ export default async function CheckoutSuccessPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const params = await searchParams;
-  const orderId = (params.orderId as string) || `ORD-${Math.floor(Math.random() * 1000000)}`;
+  const orderId = (params.orderId as string) || 'ORD-RECENT';
   
   // Try to find the actual order
   const orders = await api.orders.getAll();

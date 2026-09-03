@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/connect';
-import { ProductModel, OrderModel, UserModel } from '@/lib/models';
+import { ProductModel, OrderModel } from '@/lib/models';
 import { mockProducts } from '@/lib/mocks/data';
 import { getRazorpayClient } from '@/lib/razorpay';
 import { getAuthCookie, verifySessionToken } from '@/lib/auth';

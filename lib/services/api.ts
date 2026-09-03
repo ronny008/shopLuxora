@@ -8,6 +8,13 @@ import {
   UserModel,
   OrderModel,
 } from '../models';
+import {
+  mockProducts,
+  mockCategories,
+  mockBrands,
+  mockUsers,
+  mockOrders,
+} from '../mocks/data';
 
 function mapDoc<T>(doc: any): T {
   if (!doc) return doc;
@@ -38,79 +45,101 @@ export const api = {
       try {
         await dbConnect();
         const docs = await ProductModel.find({ status: 'active' }).lean();
-        return docs.map(mapDoc<Product>);
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<Product>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error:', err);
-        return [];
+        console.warn('MongoDB query error (using mock products fallback):', err);
       }
+      return mockProducts;
     }),
     getById: cache(async (id: string): Promise<Product | undefined> => {
       try {
         await dbConnect();
-        const doc = await ProductModel.findById(id).lean();
+        let doc = null;
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+          doc = await ProductModel.findById(id).lean();
+        }
+        if (!doc) {
+          doc = await ProductModel.findOne({
+            $or: [{ _id: id }, { slug: id }],
+          }).lean();
+        }
         if (doc) return mapDoc<Product>(doc);
       } catch (err) {
-        console.warn('MongoDB query error by ID:', err);
+        console.warn('MongoDB query error by ID (using mock products fallback):', err);
       }
-      return undefined;
+      return mockProducts.find((p) => p._id === id || p.slug === id);
     }),
     getByCategory: cache(async (categoryId: string): Promise<Product[]> => {
       try {
         await dbConnect();
         const docs = await ProductModel.find({ categoryId, status: 'active' }).lean();
-        return docs.map(mapDoc<Product>);
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<Product>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error by category:', err);
-        return [];
+        console.warn('MongoDB query error by category (using mock products fallback):', err);
       }
-    })
+      return mockProducts.filter((p) => p.categoryId === categoryId);
+    }),
   },
   categories: {
     getAll: cache(async (): Promise<Category[]> => {
       try {
         await dbConnect();
         const docs = await CategoryModel.find({ status: 'active' }).lean();
-        return docs.map(mapDoc<Category>);
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<Category>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error categories:', err);
-        return [];
+        console.warn('MongoDB query error categories (using mock categories fallback):', err);
       }
-    })
+      return mockCategories;
+    }),
   },
   brands: {
     getAll: cache(async (): Promise<Brand[]> => {
       try {
         await dbConnect();
         const docs = await BrandModel.find({ status: 'active' }).lean();
-        return docs.map(mapDoc<Brand>);
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<Brand>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error brands:', err);
-        return [];
+        console.warn('MongoDB query error brands (using mock brands fallback):', err);
       }
-    })
+      return mockBrands;
+    }),
   },
   orders: {
     getAll: cache(async (): Promise<Order[]> => {
       try {
         await dbConnect();
         const docs = await OrderModel.find().sort({ createdAt: -1 }).lean();
-        return docs.map(mapDoc<Order>);
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<Order>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error orders:', err);
-        return [];
+        console.warn('MongoDB query error orders (using mock orders fallback):', err);
       }
+      return mockOrders;
     }),
     getByUser: cache(async (userId: string): Promise<Order[]> => {
       try {
         await dbConnect();
         const docs = await OrderModel.find({
-          $or: [{ userId }, { userId: 'Customer' }]
-        }).sort({ createdAt: -1 }).lean();
-        return docs.map(mapDoc<Order>);
+          $or: [{ userId }, { userId: 'Customer' }],
+        })
+          .sort({ createdAt: -1 })
+          .lean();
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<Order>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error user orders:', err);
-        return [];
+        console.warn('MongoDB query error user orders (using mock orders fallback):', err);
       }
+      return mockOrders.filter((o) => o.userId === userId || o.userId === 'Customer');
     }),
     getById: cache(async (idOrNumber: string): Promise<Order | undefined> => {
       try {
@@ -121,15 +150,15 @@ export const api = {
         }
         if (!doc) {
           doc = await OrderModel.findOne({
-            $or: [{ _id: idOrNumber }, { orderNumber: idOrNumber }]
+            $or: [{ _id: idOrNumber }, { orderNumber: idOrNumber }],
           }).lean();
         }
         if (doc) return mapDoc<Order>(doc);
       } catch (err) {
-        console.warn('MongoDB query error order by ID:', err);
+        console.warn('MongoDB query error order by ID (using mock orders fallback):', err);
       }
-      return undefined;
-    })
+      return mockOrders.find((o) => o._id === idOrNumber || o.orderNumber === idOrNumber);
+    }),
   },
   auth: {
     getCurrentUser: cache(async (): Promise<User | null> => {
@@ -162,17 +191,19 @@ export const api = {
       } catch (err) {
         console.warn('MongoDB query error current user:', err);
       }
-      return null;
+      return mockUsers[1] || mockUsers[0] || null;
     }),
     getAll: cache(async (): Promise<User[]> => {
       try {
         await dbConnect();
         const docs = await UserModel.find().lean();
-        return docs.map(mapDoc<User>);
+        if (docs && docs.length > 0) {
+          return docs.map(mapDoc<User>);
+        }
       } catch (err) {
-        console.warn('MongoDB query error users:', err);
-        return [];
+        console.warn('MongoDB query error users (using mock users fallback):', err);
       }
-    })
-  }
+      return mockUsers;
+    }),
+  },
 };
