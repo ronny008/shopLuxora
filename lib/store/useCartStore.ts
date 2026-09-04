@@ -68,10 +68,10 @@ export const useCartStore = create<CartState>()(
         set({ items: [] });
       },
       getTotalItems: () => {
-        return (get().items || []).reduce((total, item) => total + (item?.quantity || 0), 0);
+        return get().items.reduce((total, item) => total + item.quantity, 0);
       },
       getTotalPrice: () => {
-        return (get().items || []).reduce((total, item) => total + ((item?.product?.price || 0) * (item?.quantity || 0)), 0);
+        return get().items.reduce((total, item) => total + item.product.price * item.quantity, 0);
       },
     }),
     {

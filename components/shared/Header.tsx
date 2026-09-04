@@ -2,30 +2,18 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, User, Heart, ShoppingBag, Menu, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useWishlistStore } from '@/lib/store/useWishlistStore';
 import { useCartStore } from '@/lib/store/useCartStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { LogOut, ShieldCheck, Package } from 'lucide-react';
 
-const categoryLinks = [
-  { name: 'All Products', href: '/products', badge: '16' },
-  { name: "Men's Collection", href: '/categories/men', badge: 'Hot' },
-  { name: "Women's Collection", href: '/categories/women', badge: 'New' },
-  { name: 'Dresses', href: '/categories/dresses' },
-  { name: 'Outerwear', href: '/categories/outerwear' },
-  { name: 'Footwear', href: '/categories/footwear' },
-  { name: 'Accessories', href: '/categories/accessories' },
-];
-
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
@@ -40,20 +28,11 @@ export function Header() {
     checkAuth();
   }, [checkAuth]);
 
-  // Close mobile menu on page navigation
-  const pathname = usePathname();
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-    setIsShopDropdownOpen(false);
-    setIsSearchOpen(false);
-    setIsUserMenuOpen(false);
-  }, [pathname]);
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
-
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -67,20 +46,19 @@ export function Header() {
     }
   };
 
+  const pathname = usePathname();
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
   const navItems = [
-    { id: 'home', label: 'HOME', href: '/', hasDropdown: false },
+    { id: 'home', label: 'HOME', href: '/', hasDropdown: true },
     { id: 'shop', label: 'SHOP', href: '/products', hasDropdown: true },
-    { id: 'categories', label: 'COLLECTIONS', href: '/categories', hasDropdown: false },
     { id: 'contact', label: 'CONTACT', href: '/contact', hasDropdown: false },
   ];
 
   const getActiveNav = () => {
     if (pathname === '/') return 'home';
     if (pathname.startsWith('/contact')) return 'contact';
-    if (pathname.startsWith('/categories')) return 'categories';
-    if (pathname.startsWith('/products') || pathname.startsWith('/shop') || pathname.startsWith('/checkout')) return 'shop';
+    if (pathname.startsWith('/products') || pathname.startsWith('/shop') || pathname.startsWith('/checkout') || pathname.startsWith('/categories')) return 'shop';
     return 'shop';
   };
 
@@ -90,15 +68,8 @@ export function Header() {
   return (
     <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white transition-all duration-300 ${isScrolled ? 'shadow-sm' : ''}`}>
       <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4 lg:px-8 relative">
-        {/* Left: Mobile Hamburger & Logo */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="md:hidden text-slate-800 hover:text-black p-1 transition-colors"
-            aria-label="Toggle navigation menu"
-          >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+        {/* Left: Logo */}
+        <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <span className="font-script text-3xl md:text-4xl text-[#D32F2F] tracking-wide font-normal lowercase italic first-letter:uppercase">
               Luxora
@@ -106,103 +77,36 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Center: Desktop Navigation */}
+        {/* Center: Navigation */}
         <div className="flex items-center justify-center">
           <nav
-            className="hidden md:flex items-center space-x-8 text-[12px] tracking-wider relative"
-            onMouseLeave={() => {
-              setHoveredNav(null);
-              setIsShopDropdownOpen(false);
-            }}
+            className="hidden md:flex items-center space-x-8 text-[12px] tracking-wider"
+            onMouseLeave={() => setHoveredNav(null)}
           >
             {navItems.map((item) => {
               const isCurrent = currentIndicator === item.id;
-              if (item.id === 'shop') {
-                return (
-                  <div
-                    key={item.id}
-                    className="relative py-1"
-                    onMouseEnter={() => {
-                      setHoveredNav('shop');
-                      setIsShopDropdownOpen(true);
-                    }}
-                  >
-                    <Link
-                      href={item.href}
-                      className={`flex items-center gap-1 transition-colors uppercase ${
-                        isCurrent ? 'font-bold text-black' : 'font-semibold text-slate-700 hover:text-black'
-                      }`}
-                    >
-                      {item.label}
-                      <ChevronDown
-                        className={`w-3 h-3 transition-transform duration-200 ${
-                          isShopDropdownOpen ? 'rotate-180 text-black' : 'text-slate-500'
-                        }`}
-                      />
-                    </Link>
-
-                    {/* Desktop Shop Mega Dropdown */}
-                    <AnimatePresence>
-                      {isShopDropdownOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-50 w-64"
-                        >
-                          <div className="bg-white border border-slate-200 shadow-xl py-3 px-2 rounded-xs">
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3 py-1 mb-1">
-                              Browse by Category
-                            </div>
-                            {categoryLinks.map((cat) => (
-                              <Link
-                                key={cat.href}
-                                href={cat.href}
-                                onClick={() => setIsShopDropdownOpen(false)}
-                                className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 hover:text-black hover:bg-slate-50 transition-colors uppercase tracking-wider"
-                              >
-                                <span>{cat.name}</span>
-                                {cat.badge && (
-                                  <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-900 text-white rounded-xs">
-                                    {cat.badge}
-                                  </span>
-                                )}
-                              </Link>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {isCurrent && (
-                      <motion.span
-                        layoutId="header-nav-underline"
-                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-black pointer-events-none"
-                        transition={{
-                          type: 'spring',
-                          stiffness: 450,
-                          damping: 32,
-                        }}
-                      />
-                    )}
-                  </div>
-                );
-              }
-
               return (
                 <Link
                   key={item.id}
                   href={item.href}
-                  onMouseEnter={() => {
-                    setHoveredNav(item.id);
-                    setIsShopDropdownOpen(false);
-                  }}
+                  onMouseEnter={() => setHoveredNav(item.id)}
                   className={`relative flex items-center gap-1 py-1 transition-colors uppercase ${
                     isCurrent ? 'font-bold text-black' : 'font-semibold text-slate-700 hover:text-black'
                   }`}
                 >
                   {item.label}
+                  {item.hasDropdown && (
+                    <svg
+                      className={`w-3 h-3 transition-colors ${
+                        isCurrent ? 'text-black' : 'text-slate-500'
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  )}
                   {isCurrent && (
                     <motion.span
                       layoutId="header-nav-underline"
@@ -309,18 +213,9 @@ export function Header() {
               {isMounted ? wishlistIds.length : 0}
             </span>
           </Link>
-          <button
-            type="button"
-            onClick={openCart}
-            className="relative text-slate-800 hover:text-black transition-colors p-1 cursor-pointer"
-            aria-label="Cart"
-            suppressHydrationWarning
-          >
+          <button onClick={openCart} className="relative text-slate-800 hover:text-black transition-colors p-1 cursor-pointer" aria-label="Cart">
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
-            <span
-              className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#D32F2F] text-[9px] font-bold text-white"
-              suppressHydrationWarning
-            >
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#D32F2F] text-[9px] font-bold text-white">
               {isMounted ? getTotalItems() : 0}
             </span>
           </button>
@@ -346,152 +241,6 @@ export function Header() {
           </form>
         </div>
       )}
-
-      {/* Mobile Navigation Drawer */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-[90] md:hidden">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            />
-
-            {/* Slideout Panel */}
-            <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-              className="fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto"
-            >
-              <div>
-                {/* Header in Drawer */}
-                <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-                  <span className="font-script text-3xl text-[#D32F2F] italic">
-                    Luxora
-                  </span>
-                  <button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-1.5 rounded-full text-slate-500 hover:text-black hover:bg-slate-100 transition-colors"
-                    aria-label="Close menu"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Primary Nav Links */}
-                <div className="py-3 px-4 space-y-1">
-                  <Link
-                    href="/"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-3 px-3 text-sm font-bold uppercase tracking-widest text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <span>Home</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </Link>
-                  <Link
-                    href="/products"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-3 px-3 text-sm font-bold uppercase tracking-widest text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <span>All Products</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </Link>
-                  <Link
-                    href="/categories"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-3 px-3 text-sm font-bold uppercase tracking-widest text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <span>Collections</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </Link>
-                  <Link
-                    href="/contact"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center justify-between py-3 px-3 text-sm font-bold uppercase tracking-widest text-slate-900 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <span>Contact Us</span>
-                    <ChevronRight className="w-4 h-4 text-slate-400" />
-                  </Link>
-                </div>
-
-                {/* Categories Quick Links */}
-                <div className="pt-2 pb-4 px-4 border-t border-slate-100">
-                  <p className="px-3 py-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
-                    Categories
-                  </p>
-                  <div className="space-y-0.5">
-                    {categoryLinks.map((cat) => (
-                      <Link
-                        key={cat.href}
-                        href={cat.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="flex items-center justify-between py-2 px-3 text-xs font-semibold text-slate-700 hover:text-black hover:bg-slate-50 rounded-md transition-colors uppercase tracking-wider"
-                      >
-                        <span>{cat.name}</span>
-                        {cat.badge && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.2 bg-slate-900 text-white rounded-xs">
-                            {cat.badge}
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Footer in Drawer */}
-              <div className="p-4 border-t border-slate-100 bg-slate-50 space-y-2">
-                {isMounted && user ? (
-                  <>
-                    <div className="px-3 py-2">
-                      <p className="text-xs font-bold text-slate-900">{user.name}</p>
-                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 pt-1">
-                      <Link
-                        href="/profile"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-center py-2 px-3 bg-white border border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-900 rounded-md hover:border-black"
-                      >
-                        Profile
-                      </Link>
-                      <Link
-                        href="/orders"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-center py-2 px-3 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-md hover:bg-slate-800"
-                      >
-                        Orders
-                      </Link>
-                    </div>
-                  </>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link
-                      href="/login"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-center py-2.5 px-3 bg-white border border-slate-300 text-xs font-bold uppercase tracking-wider text-slate-900 rounded-md hover:border-black"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/register"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-center py-2.5 px-3 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-md hover:bg-slate-800"
-                    >
-                      Register
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </header>
   );
 }
