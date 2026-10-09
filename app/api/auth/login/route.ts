@@ -3,20 +3,31 @@ import dbConnect from '@/lib/db/connect';
 import UserModel from '@/lib/models/User';
 import { verifyPassword, createSessionToken, setAuthCookie } from '@/lib/auth';
 import { mockUsers } from '@/lib/mocks/data';
+import { validateEmail, validatePassword } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      );
+    const emailError = validateEmail(email);
+    if (emailError) {
+      return NextResponse.json({ error: emailError }, { status: 400 });
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 });
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    let foundUser: any = null;
+    let foundUser: {
+      _id: string;
+      name: string;
+      email: string;
+      role: 'Customer' | 'Admin' | 'Guest';
+      status: string;
+      createdAt: string;
+    } | null = null;
 
     try {
       await dbConnect();
@@ -35,13 +46,13 @@ export async function POST(req: NextRequest) {
             _id: dbUser._id.toString(),
             name: dbUser.name,
             email: dbUser.email,
-            role: dbUser.role,
+            role: dbUser.role as 'Customer' | 'Admin' | 'Guest',
             status: dbUser.status,
             createdAt: dbUser.createdAt ? dbUser.createdAt.toISOString() : new Date().toISOString(),
           };
         }
       }
-    } catch (dbErr) {
+    } catch (dbErr: unknown) {
       console.warn('DB connect error during login, attempting mock fallback:', dbErr);
     }
 
@@ -82,10 +93,11 @@ export async function POST(req: NextRequest) {
       success: true,
       user: foundUser,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Login API error:', error);
+    const message = error instanceof Error ? error.message : 'Login failed';
     return NextResponse.json(
-      { error: error.message || 'Login failed' },
+      { error: message },
       { status: 500 }
     );
   }
