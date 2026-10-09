@@ -50,14 +50,14 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                         <p className="text-xs text-black uppercase mt-1">Qty: {item.quantity}</p>
                       </div>
                     </div>
-                    <p className="text-xs font-bold text-black uppercase">${(item.price * item.quantity).toFixed(2)}</p>
+                    <p className="text-xs font-bold text-black uppercase">₹{(item.price * item.quantity).toFixed(2)}</p>
                   </div>
                 );
               })}
             </div>
             <div className="mt-6 pt-6 border-t border-black flex justify-between items-center">
               <span className="text-sm font-bold uppercase tracking-wider text-black">Total</span>
-              <span className="text-xl font-bold text-black">${order.total.toFixed(2)}</span>
+              <span className="text-xl font-bold text-black">₹{order.total.toFixed(2)}</span>
             </div>
           </div>
         </div>

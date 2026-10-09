@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white p-6 border border-black rounded-none">
           <p className="text-xs font-bold uppercase tracking-wider text-black">Total Revenue</p>
-          <p className="mt-4 text-3xl font-bold text-black">${totalRevenue.toFixed(2)}</p>
+          <p className="mt-4 text-3xl font-bold text-black">₹{totalRevenue.toFixed(2)}</p>
         </div>
         <div className="bg-white p-6 border border-black rounded-none">
           <p className="text-xs font-bold uppercase tracking-wider text-black">Total Orders</p>
@@ -74,7 +74,7 @@ export default async function AdminDashboardPage() {
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">${order.total.toFixed(2)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">₹{order.total.toFixed(2)}</td>
                   </tr>
                 ))
               )}

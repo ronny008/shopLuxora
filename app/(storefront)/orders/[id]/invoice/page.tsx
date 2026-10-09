@@ -81,9 +81,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                       <p className="font-medium text-slate-900">{product?.name || 'Unknown Product'}</p>
                     </td>
                     <td className="py-4 px-2 text-center">{item.quantity}</td>
-                    <td className="py-4 px-2 text-right">${item.price.toFixed(2)}</td>
+                    <td className="py-4 px-2 text-right">₹{item.price.toFixed(2)}</td>
                     <td className="py-4 px-2 text-right font-medium text-slate-900">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toFixed(2)}
                     </td>
                   </tr>
                 );
@@ -92,15 +92,15 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
             <tfoot>
               <tr className="border-t border-slate-200">
                 <td colSpan={3} className="py-4 px-2 text-right text-sm font-semibold text-slate-900">Subtotal</td>
-                <td className="py-4 px-2 text-right text-sm font-medium text-slate-900">${order.total.toFixed(2)}</td>
+                <td className="py-4 px-2 text-right text-sm font-medium text-slate-900">₹{order.total.toFixed(2)}</td>
               </tr>
               <tr>
                 <td colSpan={3} className="py-2 px-2 text-right text-sm text-slate-500">Shipping</td>
-                <td className="py-2 px-2 text-right text-sm text-slate-500">$0.00</td>
+                <td className="py-2 px-2 text-right text-sm text-slate-500">₹0.00</td>
               </tr>
               <tr>
                 <td colSpan={3} className="py-4 px-2 text-right text-lg font-bold text-slate-900 uppercase">Total</td>
-                <td className="py-4 px-2 text-right text-lg font-bold text-slate-900">${order.total.toFixed(2)}</td>
+                <td className="py-4 px-2 text-right text-lg font-bold text-slate-900">₹{order.total.toFixed(2)}</td>
               </tr>
             </tfoot>
           </table>

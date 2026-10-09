@@ -120,7 +120,7 @@ export function ProductTableClient({ initialProducts }: { initialProducts: Produ
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">${product.price.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">₹{product.price.toFixed(2)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs text-black">
                     <span className={`px-3 py-1 inline-flex text-xs font-bold uppercase tracking-wider rounded-none ${product.stock > 10 ? 'bg-black text-white' : 'bg-red-600 text-white'}`}>
                       {product.stock}

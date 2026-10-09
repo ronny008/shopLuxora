@@ -47,7 +47,7 @@ export default async function AdminOrdersPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">{order.orderNumber}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">{order.userId}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">${order.total.toFixed(2)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-xs font-bold text-black uppercase">₹{order.total.toFixed(2)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <OrderStatusSelect orderId={String(order._id)} currentStatus={order.status} />
                   </td>

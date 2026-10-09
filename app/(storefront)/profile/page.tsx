@@ -117,7 +117,7 @@ export default async function ProfilePage() {
                         <p className="text-xs text-slate-500 mt-0.5">{new Date(order.createdAt).toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-slate-900">${order.total.toFixed(2)}</p>
+                        <p className="text-sm font-bold text-slate-900">₹{order.total.toFixed(2)}</p>
                         <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-700 mt-0.5 capitalize">
                           {order.status}
                         </span>

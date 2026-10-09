@@ -15,7 +15,6 @@ import {
   ExternalLink, 
   Plus, 
   Trash2, 
-  Image as ImageIcon, 
   Sliders, 
   Layers, 
   Sparkles, 
@@ -30,20 +29,6 @@ interface Props {
   initialConfig: ILandingPageConfig;
 }
 
-// Curated luxury preset images for quick selection
-const PRESET_IMAGES = [
-  { label: 'Silk Gown Luxury', url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop' },
-  { label: 'Leather Streetwear', url: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=2000&auto=format&fit=crop' },
-  { label: 'Minimalist Editorial', url: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2000&auto=format&fit=crop' },
-  { label: 'High Fashion Studio', url: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop' },
-  { label: 'Urban Dark Aesthetic', url: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=2000&auto=format&fit=crop' },
-  { label: 'Men Tailoring', url: 'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?q=80&w=1000&auto=format&fit=crop' },
-  { label: 'Women Chic', url: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?q=80&w=1000&auto=format&fit=crop' },
-  { label: 'Graphic Streetwear', url: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=800&auto=format&fit=crop' },
-  { label: 'Red Studio Tee', url: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop' },
-  { label: 'Monochrome Tee', url: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=800&auto=format&fit=crop' },
-  { label: 'Warm Brown Casual', url: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=800&auto=format&fit=crop' },
-];
 
 export function LandingPageEditorClient({ initialConfig }: Props) {
   const [config, setConfig] = useState<ILandingPageConfig>(initialConfig);
@@ -264,32 +249,6 @@ export function LandingPageEditorClient({ initialConfig }: Props) {
         </button>
       </div>
 
-      {/* Preset Image Inspiration Bar */}
-      <div className="bg-gray-50 border border-gray-200 p-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-black flex items-center gap-1.5">
-            <ImageIcon className="w-3.5 h-3.5 text-neutral-600" />
-            <span>Quick Preset Image Suggestions (Click to copy or use):</span>
-          </p>
-          <span className="text-[10px] text-gray-400">High-Resolution Fashion Editorial URLs</span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {PRESET_IMAGES.map((p, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(p.url);
-                showStatus('success', `Copied "${p.label}" URL to clipboard! Paste it into any image field.`);
-              }}
-              className="text-[10px] px-2.5 py-1 bg-white border border-gray-300 hover:border-black text-gray-800 font-medium hover:bg-black hover:text-white transition-colors"
-              title="Click to copy URL to clipboard"
-            >
-              + {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* TAB 1: HERO CAROUSEL */}
       {activeTab === 'hero' && (

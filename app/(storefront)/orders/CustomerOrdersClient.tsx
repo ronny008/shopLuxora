@@ -177,7 +177,7 @@ export function CustomerOrdersClient({ orders, products }: CustomerOrdersClientP
                   <div className="flex items-center gap-4">
                     <div className="text-right">
                       <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Total Amount</span>
-                      <p className="text-base font-bold text-slate-900">${order.total.toFixed(2)}</p>
+                      <p className="text-base font-bold text-slate-900">₹{order.total.toFixed(2)}</p>
                     </div>
                     <div>{getStatusBadge(order.status)}</div>
                   </div>
@@ -209,7 +209,7 @@ export function CustomerOrdersClient({ orders, products }: CustomerOrdersClientP
                               {product?.name || 'Item Details'}
                             </h4>
                             <p className="text-xs text-slate-500 mt-1">
-                              Qty: <span className="font-medium text-slate-700">{item.quantity}</span> &bull; Unit Price: ${item.price.toFixed(2)}
+                              Qty: <span className="font-medium text-slate-700">{item.quantity}</span> &bull; Unit Price: ₹{item.price.toFixed(2)}
                             </p>
                             <p className="text-xs text-slate-400 mt-0.5 capitalize">
                               Payment: {order.payment.method} ({order.payment.status})
@@ -219,7 +219,7 @@ export function CustomerOrdersClient({ orders, products }: CustomerOrdersClientP
 
                         <div className="text-right flex-shrink-0">
                           <p className="text-sm font-bold text-slate-900">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            ₹{(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
                       </div>

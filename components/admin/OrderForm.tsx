@@ -167,7 +167,7 @@ export function OrderForm({ products }: OrderFormProps) {
               <option value="">-- Choose Product --</option>
               {products.map((product) => (
                 <option key={product._id} value={product._id}>
-                  {product.name} - ${product.price.toFixed(2)} (Stock: {product.stock})
+                  {product.name} - ₹{product.price.toFixed(2)} (Stock: {product.stock})
                 </option>
               ))}
             </select>
@@ -221,10 +221,10 @@ export function OrderForm({ products }: OrderFormProps) {
                       <td className="py-3 px-4 font-bold text-black uppercase">
                         {product?.name || 'Unknown Product'}
                       </td>
-                      <td className="py-3 px-4 text-center font-medium">${item.price.toFixed(2)}</td>
+                      <td className="py-3 px-4 text-center font-medium">₹{item.price.toFixed(2)}</td>
                       <td className="py-3 px-4 text-center font-bold">{item.quantity}</td>
                       <td className="py-3 px-4 text-right font-bold text-black">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ₹{(item.price * item.quantity).toFixed(2)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <button
@@ -247,7 +247,7 @@ export function OrderForm({ products }: OrderFormProps) {
                     Grand Total:
                   </td>
                   <td className="py-3 px-4 text-right text-sm text-black">
-                    ${totalAmount.toFixed(2)}
+                    ₹{totalAmount.toFixed(2)}
                   </td>
                   <td></td>
                 </tr>

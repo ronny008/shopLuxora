@@ -171,13 +171,13 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                         Quantity: <span className="font-semibold text-slate-800">{item.quantity}</span>
                       </p>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Price per item: ${item.price.toFixed(2)}
+                        Price per item: ₹{item.price.toFixed(2)}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-base font-bold text-slate-900">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      ₹{(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
           <div className="bg-slate-50 p-6 border-t border-slate-200 space-y-2">
             <div className="flex justify-between text-xs text-slate-500">
               <span>Subtotal</span>
-              <span>${order.total.toFixed(2)}</span>
+              <span>₹{order.total.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs text-slate-500">
               <span>Standard Shipping</span>
@@ -196,7 +196,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
             </div>
             <div className="flex justify-between items-center text-lg font-bold text-slate-900 border-t border-slate-200 pt-3 mt-3">
               <span>Total Amount Paid</span>
-              <span className="text-2xl font-extrabold text-slate-900">${order.total.toFixed(2)}</span>
+              <span className="text-2xl font-extrabold text-slate-900">₹{order.total.toFixed(2)}</span>
             </div>
           </div>
         </div>
