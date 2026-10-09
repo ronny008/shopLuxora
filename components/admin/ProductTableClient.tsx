@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Product } from '@/types';
 import { FallbackImage } from '@/components/shared/FallbackImage';
 import { deleteProductAction } from '@/app/(admin)/dashboard/products/actions';
+import { DeleteButton } from './DeleteButton';
 
 export function ProductTableClient({ initialProducts }: { initialProducts: Product[] }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,11 +44,11 @@ export function ProductTableClient({ initialProducts }: { initialProducts: Produ
 
   return (
     <div className="bg-white border border-black rounded-none">
-      <div className="px-6 py-4 border-b border-black flex items-center justify-between">
+      <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <input 
           type="text" 
           placeholder="SEARCH PRODUCTS..." 
-          className="sharp-input w-64"
+          className="sharp-input w-full sm:w-64"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -137,19 +138,16 @@ export function ProductTableClient({ initialProducts }: { initialProducts: Produ
                       <span className="inline-flex items-center justify-center text-gray-300">-</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
-                    <Link href={`/dashboard/products/${product._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <form 
-                      action={deleteProductAction}
-                      onSubmit={(e) => {
-                        if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    >
-                      <input type="hidden" name="id" value={product._id} />
-                      <button type="submit" className="text-red-600 hover:underline font-bold cursor-pointer">Delete</button>
-                    </form>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase">
+                    <div className="flex items-center justify-end gap-4">
+                      <Link href={`/dashboard/products/${product._id}/edit`} className="text-black hover:underline">Edit</Link>
+                      <DeleteButton
+                        action={deleteProductAction}
+                        id={String(product._id)}
+                        name={product.name}
+                        itemType="product"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))

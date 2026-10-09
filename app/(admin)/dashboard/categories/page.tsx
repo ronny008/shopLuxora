@@ -11,7 +11,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <h1 className="text-xl font-bold uppercase tracking-[0.2em] text-black">Categories</h1>
         <Link href="/dashboard/categories/create" className="btn-solid !w-fit px-6 py-3">
           Add Category
@@ -39,14 +39,16 @@ export default async function AdminCategoriesPage() {
                       {category.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
-                    <Link href={`/dashboard/categories/${category._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <DeleteButton
-                      action={deleteCategoryAction}
-                      id={String(category._id)}
-                      name={category.name}
-                      itemType="category"
-                    />
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase">
+                    <div className="flex items-center justify-end gap-4">
+                      <Link href={`/dashboard/categories/${category._id}/edit`} className="text-black hover:underline">Edit</Link>
+                      <DeleteButton
+                        action={deleteCategoryAction}
+                        id={String(category._id)}
+                        name={category.name}
+                        itemType="category"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

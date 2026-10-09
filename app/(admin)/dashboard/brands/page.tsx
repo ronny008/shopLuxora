@@ -11,7 +11,7 @@ export default async function AdminBrandsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
         <h1 className="text-xl font-bold uppercase tracking-[0.2em] text-black">Brands</h1>
         <Link href="/dashboard/brands/create" className="btn-solid !w-fit px-6 py-3">
           Add Brand
@@ -19,11 +19,11 @@ export default async function AdminBrandsPage() {
       </div>
 
       <div className="bg-white border border-black rounded-none">
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <input
             type="text"
             placeholder="SEARCH BRANDS..."
-            className="sharp-input w-64"
+            className="sharp-input w-full sm:w-64"
           />
         </div>
         <div className="overflow-x-auto">
@@ -44,14 +44,16 @@ export default async function AdminBrandsPage() {
                       {brand.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
-                    <Link href={`/dashboard/brands/${brand._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <DeleteButton
-                      action={deleteBrandAction}
-                      id={String(brand._id)}
-                      name={brand.name}
-                      itemType="brand"
-                    />
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase">
+                    <div className="flex items-center justify-end gap-4">
+                      <Link href={`/dashboard/brands/${brand._id}/edit`} className="text-black hover:underline">Edit</Link>
+                      <DeleteButton
+                        action={deleteBrandAction}
+                        id={String(brand._id)}
+                        name={brand.name}
+                        itemType="brand"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

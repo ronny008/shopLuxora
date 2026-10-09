@@ -15,11 +15,11 @@ export default async function AdminUsersPage() {
       </div>
 
       <div className="bg-white border border-black rounded-none">
-        <div className="px-6 py-4 border-b border-black flex items-center justify-between">
+        <div className="px-4 sm:px-6 py-4 border-b border-black flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <input
             type="text"
             placeholder="SEARCH USERS..."
-            className="sharp-input w-64"
+            className="sharp-input w-full sm:w-64"
           />
           <div className="flex gap-2">
             <button className="px-4 py-2 border border-black text-xs font-bold uppercase tracking-wider text-black hover:bg-black hover:text-white transition-colors rounded-none">Filter</button>
@@ -47,14 +47,16 @@ export default async function AdminUsersPage() {
                       {user.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
-                    <Link href={`/dashboard/users/${user._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <DeleteButton
-                      action={deleteUserAction}
-                      id={String(user._id)}
-                      name={user.name}
-                      itemType="user"
-                    />
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase">
+                    <div className="flex items-center justify-end gap-4">
+                      <Link href={`/dashboard/users/${user._id}/edit`} className="text-black hover:underline">Edit</Link>
+                      <DeleteButton
+                        action={deleteUserAction}
+                        id={String(user._id)}
+                        name={user.name}
+                        itemType="user"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

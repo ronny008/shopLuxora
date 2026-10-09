@@ -19,30 +19,30 @@ export function DeleteButton({
 }: DeleteButtonProps) {
   const [isPending, startTransition] = useTransition();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleDelete = () => {
     const message = name
       ? `Are you sure you want to delete ${itemType} "${name}"? This action cannot be undone.`
       : `Are you sure you want to delete this ${itemType}? This action cannot be undone.`;
 
     if (!confirm(message)) {
-      e.preventDefault();
+      return;
     }
+
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append('id', id);
+      await action(formData);
+    });
   };
 
   return (
-    <form
-      action={(formData) => {
-        startTransition(async () => {
-          await action(formData);
-        });
-      }}
-      onSubmit={handleSubmit}
-      className="inline"
+    <button
+      type="button"
+      onClick={handleDelete}
+      disabled={isPending}
+      className={className}
     >
-      <input type="hidden" name="id" value={id} />
-      <button type="submit" disabled={isPending} className={className}>
-        {isPending ? 'Deleting...' : 'Delete'}
-      </button>
-    </form>
+      {isPending ? 'Deleting...' : 'Delete'}
+    </button>
   );
 }

@@ -1,10 +1,37 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import { Loader2, LogOut, ArrowLeft, ShieldAlert, ShieldCheck } from 'lucide-react';
+import {
+  Loader2,
+  LogOut,
+  ArrowLeft,
+  ShieldAlert,
+  ShieldCheck,
+  LayoutDashboard,
+  ShoppingBag,
+  Package,
+  Layers,
+  Tag,
+  Users,
+  Palette,
+  Menu,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+
+const NAV_ITEMS = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Orders', href: '/dashboard/orders', icon: ShoppingBag },
+  { name: 'Products', href: '/dashboard/products', icon: Package },
+  { name: 'Categories', href: '/dashboard/categories', icon: Layers },
+  { name: 'Brands', href: '/dashboard/brands', icon: Tag },
+  { name: 'Users', href: '/dashboard/users', icon: Users },
+  { name: 'Landing Page UI', href: '/dashboard/landing-page', icon: Palette },
+];
 
 export default function AdminLayout({
   children,
@@ -12,13 +39,37 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isInitialized, isLoading, checkAuth, logout } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     checkAuth();
+    try {
+      const saved = localStorage.getItem('admin_sidebar_collapsed');
+      if (saved !== null) {
+        setIsCollapsed(saved === 'true');
+      }
+    } catch {}
   }, [checkAuth]);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('admin_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (isMounted && isInitialized && !isLoading) {
@@ -107,55 +158,182 @@ export default function AdminLayout({
   // User is confirmed Admin -> Render Admin Layout
   return (
     <div className="flex h-screen overflow-hidden bg-white">
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-white border-r border-black text-black flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-black font-bold tracking-[0.2em] uppercase text-xs">
-          ADMIN
+      {/* Mobile Backdrop */}
+      {isMobileOpen && (
+        <div
+          onClick={() => setIsMobileOpen(false)}
+          className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Drawer */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-black flex flex-col transform transition-transform duration-300 ease-in-out md:hidden shadow-2xl ${
+          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="h-16 flex items-center justify-between px-6 border-b border-black font-bold tracking-[0.2em] uppercase text-xs">
+          <span>ADMIN PORTAL</span>
+          <button
+            onClick={() => setIsMobileOpen(false)}
+            className="p-1.5 hover:bg-black hover:text-white transition-colors cursor-pointer"
+            title="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto py-4">
-          <nav className="px-4 space-y-2 text-xs font-bold uppercase tracking-wider">
-            <Link href="/dashboard" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Dashboard
-            </Link>
-            <Link href="/dashboard/orders" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Orders
-            </Link>
-            <Link href="/dashboard/products" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Products
-            </Link>
-            <Link href="/dashboard/categories" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Categories
-            </Link>
-            <Link href="/dashboard/brands" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Brands
-            </Link>
-            <Link href="/dashboard/users" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Users
-            </Link>
-            <Link href="/dashboard/landing-page" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
-              Landing Page UI
-            </Link>
+          <nav className="px-4 space-y-1.5 text-xs font-bold uppercase tracking-wider">
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 border transition-colors ${
+                    isActive
+                      ? 'bg-black text-white border-black'
+                      : 'text-black border-transparent hover:border-black hover:bg-black/5'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
           </nav>
         </div>
         <div className="p-4 border-t border-black">
-          <Link href="/" className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black hover:underline underline-offset-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black hover:underline underline-offset-4"
+          >
             <ArrowLeft className="w-4 h-4 shrink-0 text-black" />
             <span>Storefront</span>
           </Link>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Desktop Collapsible Sidebar */}
+      <aside
+        className={`hidden md:flex flex-col bg-white border-r border-black text-black transition-[width] duration-300 ease-in-out shrink-0 ${
+          isCollapsed ? 'w-20' : 'w-64'
+        }`}
+      >
+        <div
+          className={`h-16 flex items-center border-b border-black px-4 ${
+            isCollapsed ? 'justify-center' : 'justify-between'
+          }`}
+        >
+          {!isCollapsed ? (
+            <>
+              <span className="font-bold tracking-[0.2em] uppercase text-xs">ADMIN</span>
+              <button
+                onClick={toggleCollapse}
+                title="Collapse Sidebar"
+                className="p-1.5 hover:bg-black hover:text-white transition-colors cursor-pointer border border-transparent hover:border-black"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={toggleCollapse}
+              title="Expand Sidebar"
+              className="p-1.5 hover:bg-black hover:text-white transition-colors cursor-pointer border border-transparent hover:border-black"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="flex-1 overflow-y-auto py-4">
+          <nav className={`space-y-1.5 text-xs font-bold uppercase tracking-wider ${isCollapsed ? 'px-2' : 'px-4'}`}>
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  title={isCollapsed ? item.name : undefined}
+                  className={`flex items-center transition-colors border ${
+                    isCollapsed
+                      ? 'justify-center py-3 px-2'
+                      : 'gap-3 px-4 py-3'
+                  } ${
+                    isActive
+                      ? 'bg-black text-white border-black shadow-sm'
+                      : 'text-black border-transparent hover:border-black hover:bg-black/5'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {!isCollapsed && <span className="truncate">{item.name}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="p-4 border-t border-black">
+          <Link
+            href="/"
+            title={isCollapsed ? "Storefront" : undefined}
+            className={`flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black hover:underline underline-offset-4 ${
+              isCollapsed ? 'justify-center' : ''
+            }`}
+          >
+            <ArrowLeft className="w-4 h-4 shrink-0 text-black" />
+            {!isCollapsed && <span>Storefront</span>}
+          </Link>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 flex items-center justify-between px-6 bg-white border-b border-black">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs font-bold uppercase tracking-wider text-black">Admin Portal</span>
+        <header className="h-16 flex items-center justify-between px-4 sm:px-6 bg-white border-b border-black shrink-0">
+          <div className="flex items-center gap-3">
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              className="p-1.5 md:hidden hover:bg-black hover:text-white transition-colors border border-black cursor-pointer"
+              title="Open Navigation"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Desktop Quick Toggle Button */}
+            <button
+              onClick={toggleCollapse}
+              className="hidden md:flex p-1.5 hover:bg-black hover:text-white transition-colors border border-black cursor-pointer"
+              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="text-xs font-bold uppercase tracking-wider text-black truncate">
+                Admin Portal
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-xs font-bold uppercase tracking-wider text-black">{user.name}</div>
-            <div className="h-8 w-8 bg-black text-white flex items-center justify-center font-bold text-xs uppercase">
+
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="text-xs font-bold uppercase tracking-wider text-black hidden sm:block truncate max-w-[150px]">
+              {user.name}
+            </div>
+            <div className="h-8 w-8 bg-black text-white flex items-center justify-center font-bold text-xs uppercase shrink-0">
               {user.name ? user.name.charAt(0) : 'A'}
             </div>
             <button
@@ -164,7 +342,7 @@ export default function AdminLayout({
                 router.push('/login');
               }}
               title="Sign Out"
-              className="p-1 hover:text-red-600 transition-colors text-black cursor-pointer"
+              className="p-1 hover:text-red-600 transition-colors text-black cursor-pointer shrink-0"
               suppressHydrationWarning
             >
               <LogOut className="w-4 h-4" />
@@ -173,7 +351,7 @@ export default function AdminLayout({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto bg-white p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto bg-white p-4 sm:p-6 md:p-8">
           {children}
         </main>
       </div>
