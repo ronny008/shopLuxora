@@ -2,6 +2,8 @@ import { api } from '@/lib/services/api';
 import Link from 'next/link';
 import { deleteUserAction } from './actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminUsersPage() {
   const users = await api.auth.getAll();
 

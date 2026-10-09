@@ -8,7 +8,7 @@ try {
   // Ignore if unable to set servers in certain environments
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://ronythessery:123123124@cluster0.fx1tiil.mongodb.net/?appName=Cluster0';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://ronythessery:123123124@cluster0.fx1tiil.mongodb.net/luxora?appName=Cluster0';
 
 interface MongooseCache {
   conn: typeof mongoose | null;

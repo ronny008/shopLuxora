@@ -141,13 +141,14 @@ export function Header() {
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className="flex items-center gap-1.5 text-slate-800 hover:text-black transition-colors p-1"
                 aria-label="User Menu"
+                suppressHydrationWarning
               >
                 <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold uppercase">
                   {user.name ? user.name.charAt(0) : 'U'}
                 </div>
               </button>
             ) : (
-              <Link href="/login" className="text-slate-800 hover:text-black transition-colors p-1" aria-label="User Account">
+              <Link href="/login" className="text-slate-800 hover:text-black transition-colors p-1" aria-label="User Account" suppressHydrationWarning>
                 <User className="w-5 h-5 stroke-[1.75]" />
               </Link>
             )}
@@ -199,6 +200,7 @@ export function Header() {
                       router.push('/login');
                     }}
                     className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-red-50 text-left font-medium"
+                    suppressHydrationWarning
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     Sign Out
@@ -213,7 +215,12 @@ export function Header() {
               {isMounted ? wishlistIds.length : 0}
             </span>
           </Link>
-          <button onClick={openCart} className="relative text-slate-800 hover:text-black transition-colors p-1 cursor-pointer" aria-label="Cart">
+          <button 
+            onClick={openCart} 
+            className="relative text-slate-800 hover:text-black transition-colors p-1 cursor-pointer" 
+            aria-label="Cart"
+            suppressHydrationWarning
+          >
             <ShoppingBag className="w-5 h-5 stroke-[1.75]" />
             <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#D32F2F] text-[9px] font-bold text-white">
               {isMounted ? getTotalItems() : 0}

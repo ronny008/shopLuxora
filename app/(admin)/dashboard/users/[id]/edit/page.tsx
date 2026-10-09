@@ -2,6 +2,8 @@ import { api } from '@/lib/services/api';
 import { UserForm } from '@/components/admin/UserForm';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const users = await api.auth.getAll();
