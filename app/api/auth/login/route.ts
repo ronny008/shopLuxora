@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/connect';
 import UserModel from '@/lib/models/User';
 import { verifyPassword, createSessionToken, setAuthCookie } from '@/lib/auth';
-import { mockUsers } from '@/lib/mocks/data';
 import { validateEmail, validatePassword } from '@/lib/validation';
 
 export async function POST(req: NextRequest) {
@@ -20,82 +19,64 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    let foundUser: {
-      _id: string;
-      name: string;
-      email: string;
-      role: 'Customer' | 'Admin' | 'Guest';
-      status: string;
-      createdAt: string;
-    } | null = null;
 
-    try {
-      await dbConnect();
-      const dbUser = await UserModel.findOne({ email: cleanEmail }).select('+password');
-      
-      if (dbUser) {
-        let isValidPassword = false;
-        if (dbUser.password) {
-          isValidPassword = verifyPassword(password, dbUser.password);
-        } else {
-          isValidPassword = true;
-        }
+    // 1. Connect to MongoDB database
+    await dbConnect();
 
-        if (isValidPassword) {
-          foundUser = {
-            _id: dbUser._id.toString(),
-            name: dbUser.name,
-            email: dbUser.email,
-            role: dbUser.role as 'Customer' | 'Admin' | 'Guest',
-            status: dbUser.status,
-            createdAt: dbUser.createdAt ? dbUser.createdAt.toISOString() : new Date().toISOString(),
-          };
-        }
-      }
-    } catch (dbErr: unknown) {
-      console.warn('DB connect error during login, attempting mock fallback:', dbErr);
-    }
+    // 2. Query user from MongoDB by email (explicitly selecting password)
+    const dbUser = await UserModel.findOne({ email: cleanEmail }).select('+password');
 
-    if (!foundUser) {
-      const mockMatch = mockUsers.find((u) => u.email.toLowerCase() === cleanEmail);
-      if (mockMatch) {
-        foundUser = { ...mockMatch };
-      } else if (cleanEmail.includes('@')) {
-        const username = cleanEmail.split('@')[0];
-        foundUser = {
-          _id: `user-${Date.now()}`,
-          name: username.charAt(0).toUpperCase() + username.slice(1),
-          email: cleanEmail,
-          role: cleanEmail.includes('admin') ? 'Admin' : 'Customer',
-          status: 'active',
-          createdAt: new Date().toISOString(),
-        };
-      }
-    }
-
-    if (!foundUser) {
+    if (!dbUser) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
         { status: 401 }
       );
     }
 
+    // 3. Verify hashed password against database record
+    if (!dbUser.password || !verifyPassword(password, dbUser.password)) {
+      return NextResponse.json(
+        { error: 'Invalid email or password' },
+        { status: 401 }
+      );
+    }
+
+    // 4. Verify account status
+    if (dbUser.status === 'suspended') {
+      return NextResponse.json(
+        { error: 'This account has been suspended. Please contact support.' },
+        { status: 403 }
+      );
+    }
+
+    // 5. Construct user session object from database record
+    const authenticatedUser = {
+      _id: dbUser._id.toString(),
+      name: dbUser.name,
+      email: dbUser.email,
+      role: dbUser.role as 'Customer' | 'Admin' | 'Guest',
+      status: dbUser.status,
+      createdAt: dbUser.createdAt ? dbUser.createdAt.toISOString() : new Date().toISOString(),
+    };
+
+    // 6. Generate signed JWT session token with real database role
     const token = createSessionToken({
-      userId: foundUser._id,
-      email: foundUser.email,
-      name: foundUser.name,
-      role: foundUser.role,
+      userId: authenticatedUser._id,
+      email: authenticatedUser.email,
+      name: authenticatedUser.name,
+      role: authenticatedUser.role,
     });
 
+    // 7. Store auth cookie
     await setAuthCookie(token);
 
     return NextResponse.json({
       success: true,
-      user: foundUser,
+      user: authenticatedUser,
     });
   } catch (error: unknown) {
     console.error('Login API error:', error);
-    const message = error instanceof Error ? error.message : 'Login failed';
+    const message = error instanceof Error ? error.message : 'Database login error';
     return NextResponse.json(
       { error: message },
       { status: 500 }

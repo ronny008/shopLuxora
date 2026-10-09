@@ -43,7 +43,7 @@ export async function GET() {
     };
 
     return NextResponse.json({ user });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching current user:', error);
     return NextResponse.json({ user: null });
   }

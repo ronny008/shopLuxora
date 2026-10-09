@@ -1,7 +1,7 @@
 import { api } from '@/lib/services/api';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, ArrowRight, FileText, Eye } from 'lucide-react';
+import { Package, ArrowRight, FileText, Eye, ShieldCheck } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,7 +26,38 @@ export default async function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8 lg:py-12">
       <div className="max-w-7xl mx-auto space-y-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Account Overview</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Account Overview</h1>
+          {user.role === 'Admin' && (
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-black hover:bg-neutral-800 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Open Admin Dashboard</span>
+            </Link>
+          )}
+        </div>
+
+        {user.role === 'Admin' && (
+          <div className="bg-slate-900 text-white rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-white/10 rounded-xl">
+                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+              </div>
+              <div>
+                <p className="font-bold text-sm">Administrator Privileges Active</p>
+                <p className="text-xs text-slate-300">You have full admin access to manage products, categories, orders, and users.</p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0"
+            >
+              Go to Admin Portal &rarr;
+            </Link>
+          </div>
+        )}
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="space-y-6">

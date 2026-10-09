@@ -1,14 +1,18 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { validateEmail, validatePassword } from '@/lib/validation';
 
-export default function LoginPage() {
+function LoginFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '';
+  const urlError = searchParams.get('error');
+
   const { login, user, isLoading, error, clearError, checkAuth } = useAuthStore();
 
   const [email, setEmail] = useState('');
@@ -22,15 +26,29 @@ export default function LoginPage() {
     checkAuth();
   }, [checkAuth]);
 
+  // Handle URL errors (e.g. from redirect guards)
+  useEffect(() => {
+    if (urlError === 'admin_access_required') {
+      setFormError('Administrator credentials are required to access that area.');
+    } else if (urlError === 'unauthorized') {
+      setFormError('Please sign in to access your requested page.');
+    } else if (urlError === 'session_expired') {
+      setFormError('Your session has expired. Please sign in again.');
+    }
+  }, [urlError]);
+
+  // If already logged in, redirect based on role
   useEffect(() => {
     if (user) {
       if (user.role === 'Admin') {
-        router.push('/dashboard');
+        const dest = callbackUrl && callbackUrl.startsWith('/dashboard') ? callbackUrl : '/dashboard';
+        router.push(dest);
       } else {
-        router.push('/profile');
+        const dest = callbackUrl && !callbackUrl.startsWith('/dashboard') ? callbackUrl : '/profile';
+        router.push(dest);
       }
     }
-  }, [user, router]);
+  }, [user, router, callbackUrl]);
 
   const handleBlur = (field: 'email' | 'password') => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -88,10 +106,17 @@ export default function LoginPage() {
 
     const result = await login(email.trim(), password);
     if (result.success && result.user) {
+      // Role-based destination
       if (result.user.role === 'Admin') {
-        router.push('/dashboard');
+        const destination = callbackUrl && callbackUrl.startsWith('/dashboard')
+          ? callbackUrl
+          : '/dashboard';
+        router.push(destination);
       } else {
-        router.push('/profile');
+        const destination = callbackUrl && !callbackUrl.startsWith('/dashboard')
+          ? callbackUrl
+          : '/profile';
+        router.push(destination);
       }
     }
   };
@@ -171,7 +196,7 @@ export default function LoginPage() {
               className={`block w-full rounded-xl border px-4 py-2.5 pr-11 text-slate-900 placeholder-slate-400 outline-none transition-all text-sm ${
                 touched.password && fieldErrors.password
                   ? 'border-red-400 bg-red-50/20 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-                  : 'border-slate-300 focus:border-black focus:ring-1 focus:ring-black'
+                : 'border-slate-300 focus:border-black focus:ring-1 focus:ring-black'
               }`}
               placeholder="••••••••"
             />
@@ -212,5 +237,19 @@ export default function LoginPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 max-w-md w-full mx-auto flex justify-center py-16">
+          <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        </div>
+      }
+    >
+      <LoginFormContent />
+    </Suspense>
   );
 }

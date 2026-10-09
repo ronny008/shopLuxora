@@ -7,7 +7,8 @@ import {
   ProductModel,
   OrderModel,
 } from '../models';
-import { mockCategories, mockBrands, mockProducts, mockUsers, mockOrders } from '../mocks/data';
+import { hashPassword } from '../auth';
+import { mockCategories, mockBrands, mockProducts, mockOrders } from '../mocks/data';
 
 export async function seedDatabase() {
   console.log('Connecting to MongoDB for seeding...');
@@ -22,15 +23,49 @@ export async function seedDatabase() {
     OrderModel.deleteMany({}),
   ]);
 
-  console.log('Seeding Users...');
+  console.log('Seeding Users with real credentials...');
   const userMap = new Map<string, mongoose.Types.ObjectId>();
-  for (const user of mockUsers) {
+  const usersToSeed = [
+    {
+      _id: 'user-admin-1',
+      name: 'Admin Luxora',
+      email: 'admin@luxora.com',
+      password: hashPassword('admin123'),
+      role: 'Admin' as const,
+      status: 'active' as const,
+    },
+    {
+      _id: 'user-admin-2',
+      name: 'Ronny Admin',
+      email: 'ronythessery@gmail.com',
+      password: hashPassword('admin123'),
+      role: 'Admin' as const,
+      status: 'active' as const,
+    },
+    {
+      _id: 'user-customer-1',
+      name: 'Ronny Customer',
+      email: 'ronny@gmail.com',
+      password: hashPassword('customer123'),
+      role: 'Customer' as const,
+      status: 'active' as const,
+    },
+    {
+      _id: 'user-customer-2',
+      name: 'Sarah Connor',
+      email: 'sarah@example.com',
+      password: hashPassword('customer123'),
+      role: 'Customer' as const,
+      status: 'active' as const,
+    },
+  ];
+
+  for (const user of usersToSeed) {
     const created = await UserModel.create({
       name: user.name,
-      email: user.email,
-      phone: user.phone,
+      email: user.email.toLowerCase(),
+      password: user.password,
       role: user.role,
-      image: user.image,
       status: user.status,
     });
     userMap.set(user._id, created._id as mongoose.Types.ObjectId);

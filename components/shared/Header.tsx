@@ -125,7 +125,18 @@ export function Header() {
         </div>
 
         {/* Right: Icons */}
-        <div className="flex items-center justify-end space-x-5">
+        <div className="flex items-center justify-end space-x-4">
+          {/* Admin Direct Quick Access Badge */}
+          {isMounted && user?.role === 'Admin' && (
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1.5 px-3 py-1 bg-black hover:bg-neutral-800 text-white text-[11px] font-bold uppercase tracking-wider rounded-md shadow-sm transition-all"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Admin Portal</span>
+            </Link>
+          )}
+
           <button 
             className="text-slate-800 hover:text-black transition-colors p-1" 
             aria-label="Search"

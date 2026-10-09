@@ -36,56 +36,39 @@ export async function POST(req: NextRequest) {
 
     const cleanEmail = email.toLowerCase().trim();
     const cleanName = name.trim();
-    const cleanRole = role === 'Admin' ? 'Admin' : 'Customer';
+    const cleanRole: 'Customer' | 'Admin' = role === 'Admin' ? 'Admin' : 'Customer';
 
     const hashedPassword = hashPassword(password);
-    let createdUser: {
-      _id: string;
-      name: string;
-      email: string;
-      role: 'Customer' | 'Admin';
-      status: string;
-      createdAt: string;
-    } | null = null;
 
-    try {
-      await dbConnect();
+    // Connect to MongoDB
+    await dbConnect();
 
-      const existingUser = await UserModel.findOne({ email: cleanEmail });
-      if (existingUser) {
-        return NextResponse.json(
-          { error: 'An account with this email already exists.' },
-          { status: 409 }
-        );
-      }
-
-      const dbUser = await UserModel.create({
-        name: cleanName,
-        email: cleanEmail,
-        password: hashedPassword,
-        role: cleanRole,
-        status: 'active',
-      });
-
-      createdUser = {
-        _id: dbUser._id.toString(),
-        name: dbUser.name,
-        email: dbUser.email,
-        role: dbUser.role as 'Customer' | 'Admin',
-        status: dbUser.status,
-        createdAt: dbUser.createdAt ? dbUser.createdAt.toISOString() : new Date().toISOString(),
-      };
-    } catch (dbErr: unknown) {
-      console.warn('MongoDB register error, using session fallback:', dbErr);
-      createdUser = {
-        _id: `user-${Date.now()}`,
-        name: cleanName,
-        email: cleanEmail,
-        role: cleanRole as 'Customer' | 'Admin',
-        status: 'active',
-        createdAt: new Date().toISOString(),
-      };
+    // Check if user already exists in database
+    const existingUser = await UserModel.findOne({ email: cleanEmail });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'An account with this email already exists.' },
+        { status: 409 }
+      );
     }
+
+    // Create user record in MongoDB
+    const dbUser = await UserModel.create({
+      name: cleanName,
+      email: cleanEmail,
+      password: hashedPassword,
+      role: cleanRole,
+      status: 'active',
+    });
+
+    const createdUser = {
+      _id: dbUser._id.toString(),
+      name: dbUser.name,
+      email: dbUser.email,
+      role: dbUser.role as 'Customer' | 'Admin',
+      status: dbUser.status,
+      createdAt: dbUser.createdAt ? dbUser.createdAt.toISOString() : new Date().toISOString(),
+    };
 
     const token = createSessionToken({
       userId: createdUser._id,
@@ -102,7 +85,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     console.error('Registration API error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to create account';
+    const message = error instanceof Error ? error.message : 'Failed to create account in database';
     return NextResponse.json(
       { error: message },
       { status: 500 }
