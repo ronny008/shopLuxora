@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Minus, Plus, Heart, ArrowRightLeft, MessageCircleQuestion, X } from 'lucide-react';
+import { Minus, Plus, Heart, ArrowRightLeft, X } from 'lucide-react';
 import { Product } from '@/types';
 import { useCartStore } from '@/lib/store/useCartStore';
 import { useWishlistStore } from '@/lib/store/useWishlistStore';
@@ -137,9 +137,6 @@ export function ProductActions({ product }: { product: Product }) {
         </button>
         <button onClick={() => toggleCompare(product)} className="flex items-center gap-2 hover:opacity-70 transition-opacity">
           <ArrowRightLeft className="w-4 h-4" /> Compare
-        </button>
-        <button className="flex items-center gap-2 hover:opacity-70 transition-opacity">
-          <MessageCircleQuestion className="w-4 h-4" /> Ask a question
         </button>
       </div>
       {/* Size Chart Modal */}
