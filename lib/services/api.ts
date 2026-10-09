@@ -38,7 +38,7 @@ function mapDoc<T>(doc: any): T {
 
 export const api = {
   products: {
-    getAll: cache(async (filter: { status?: string } = {}): Promise<Product[]> => {
+    getAll: cache(async (filter: { status?: Product['status'] } = {}): Promise<Product[]> => {
       try {
         await dbConnect();
         const query = filter.status ? { status: filter.status } : {};
