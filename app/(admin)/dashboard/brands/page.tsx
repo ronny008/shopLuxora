@@ -1,6 +1,7 @@
 import { api } from '@/lib/services/api';
 import Link from 'next/link';
 import { deleteBrandAction } from './actions';
+import { DeleteButton } from '@/components/admin/DeleteButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -45,17 +46,12 @@ export default async function AdminBrandsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
                     <Link href={`/dashboard/brands/${brand._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <form 
+                    <DeleteButton
                       action={deleteBrandAction}
-                      onSubmit={(e) => {
-                        if (!confirm(`Are you sure you want to delete "${brand.name}"? This action cannot be undone.`)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    >
-                      <input type="hidden" name="id" value={brand._id} />
-                      <button type="submit" className="text-red-600 hover:underline font-bold cursor-pointer">Delete</button>
-                    </form>
+                      id={String(brand._id)}
+                      name={brand.name}
+                      itemType="brand"
+                    />
                   </td>
                 </tr>
               ))}
