@@ -3,13 +3,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { mockProducts } from '@/lib/mocks/data';
 import { ProductCard } from '@/components/shared/ProductCard';
 import { ChevronDown, ChevronUp, Check, X, ChevronRight } from 'lucide-react';
 import { Product } from '@/types';
 
 export default function ProductsPage() {
-  const [productsList, setProductsList] = useState<Product[]>(mockProducts);
+  const [productsList, setProductsList] = useState<Product[]>([]);
   const [columns, setColumns] = useState<2 | 3 | 4>(3);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [outOfStockOnly, setOutOfStockOnly] = useState(false);
@@ -27,7 +26,7 @@ export default function ProductsPage() {
         const res = await fetch('/api/products');
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
+          if (Array.isArray(data)) {
             setProductsList(data);
           }
         }

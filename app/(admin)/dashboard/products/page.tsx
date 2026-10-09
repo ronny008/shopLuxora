@@ -2,6 +2,9 @@ import { api } from '@/lib/services/api';
 import Link from 'next/link';
 import { ProductTableClient } from '@/components/admin/ProductTableClient';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminProductsPage() {
   const products = await api.products.getAll();
   

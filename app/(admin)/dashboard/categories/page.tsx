@@ -2,6 +2,9 @@ import { api } from '@/lib/services/api';
 import Link from 'next/link';
 import { deleteCategoryAction } from './actions';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminCategoriesPage() {
   const categories = await api.categories.getAll();
 
@@ -37,7 +40,14 @@ export default async function AdminCategoriesPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
                     <Link href={`/dashboard/categories/${category._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <form action={deleteCategoryAction}>
+                    <form 
+                      action={deleteCategoryAction}
+                      onSubmit={(e) => {
+                        if (!confirm(`Are you sure you want to delete "${category.name}"? This action cannot be undone.`)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
                       <input type="hidden" name="id" value={category._id} />
                       <button type="submit" className="text-red-600 hover:underline font-bold cursor-pointer">Delete</button>
                     </form>

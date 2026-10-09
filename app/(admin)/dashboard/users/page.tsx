@@ -48,7 +48,14 @@ export default async function AdminUsersPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
                     <Link href={`/dashboard/users/${user._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <form action={deleteUserAction}>
+                    <form 
+                      action={deleteUserAction}
+                      onSubmit={(e) => {
+                        if (!confirm(`Are you sure you want to delete user "${user.name}"? This action cannot be undone.`)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
                       <input type="hidden" name="id" value={user._id} />
                       <button type="submit" className="text-red-600 hover:underline font-bold cursor-pointer">Delete</button>
                     </form>

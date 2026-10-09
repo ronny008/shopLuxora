@@ -5,3 +5,4 @@ export { default as ProductModel, type IProduct } from './Product';
 export { default as OrderModel, type IOrder } from './Order';
 export { default as CartModel, type ICart } from './Cart';
 export { default as ReviewModel, type IReview } from './Review';
+export { default as LandingPageModel, type ILandingPageConfig, defaultLandingPageConfig } from './LandingPage';

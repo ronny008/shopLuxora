@@ -1,24 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { mockCategories } from "@/lib/mocks/data";
 import { Category } from "@/types";
 import dbConnect from "@/lib/db/connect";
 import CategoryModel from "@/lib/models/Category";
+import mongoose from "mongoose";
+
+function safeRevalidate() {
+  try {
+    revalidatePath("/dashboard/categories");
+    revalidatePath("/categories");
+    revalidatePath("/");
+  } catch {}
+}
 
 export async function deleteCategory(id: string) {
   try {
     await dbConnect();
-    await CategoryModel.findByIdAndDelete(id);
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      await CategoryModel.findByIdAndDelete(id);
+    } else {
+      await CategoryModel.deleteOne({ $or: [{ _id: id }, { slug: id }] });
+    }
   } catch (err) {
-    console.warn('DB delete category failed, fallback to mock:', err);
+    console.error('DB delete category failed:', err);
   }
-
-  const index = mockCategories.findIndex((c) => c._id === id);
-  if (index !== -1) {
-    mockCategories.splice(index, 1);
-  }
-  revalidatePath("/dashboard/categories");
+  safeRevalidate();
 }
 
 export async function deleteCategoryAction(formData: FormData) {
@@ -31,34 +38,30 @@ export async function deleteCategoryAction(formData: FormData) {
 export async function createCategory(categoryData: Partial<Category>) {
   try {
     await dbConnect();
-    await CategoryModel.create(categoryData);
-  } catch (err) {
-    console.warn('DB create category failed, fallback to mock:', err);
+    const slug = categoryData.slug || categoryData.name?.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `cat-${Date.now()}`;
+    const created = await CategoryModel.create({
+      name: categoryData.name,
+      slug,
+      image: categoryData.image,
+      description: categoryData.description,
+      status: categoryData.status || 'active',
+    });
+    safeRevalidate();
+    return { success: true, category: JSON.parse(JSON.stringify(created)) };
+  } catch (err: any) {
+    console.error('DB create category failed:', err);
+    return { success: false, error: err.message };
   }
-
-  const newCategory: Category = {
-    ...categoryData,
-    _id: `c${Date.now()}`,
-  } as Category;
-
-  mockCategories.unshift(newCategory);
-  revalidatePath("/dashboard/categories");
 }
 
 export async function updateCategory(id: string, categoryData: Partial<Category>) {
   try {
     await dbConnect();
     await CategoryModel.findByIdAndUpdate(id, categoryData);
-  } catch (err) {
-    console.warn('DB update category failed, fallback to mock:', err);
+    safeRevalidate();
+    return { success: true };
+  } catch (err: any) {
+    console.error('DB update category failed:', err);
+    return { success: false, error: err.message };
   }
-
-  const index = mockCategories.findIndex((c) => c._id === id);
-  if (index !== -1) {
-    mockCategories[index] = {
-      ...mockCategories[index],
-      ...categoryData,
-    } as Category;
-  }
-  revalidatePath("/dashboard/categories");
 }

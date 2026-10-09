@@ -32,13 +32,21 @@ function sanitizeProductPayload(productData: Partial<Product>) {
 export async function deleteProduct(id: string) {
   try {
     await dbConnect();
-    await ProductModel.findByIdAndDelete(id);
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      await ProductModel.findByIdAndDelete(id);
+    } else {
+      await ProductModel.deleteOne({ $or: [{ _id: id }, { slug: id }] });
+    }
   } catch (err) {
-    console.warn('DB delete product failed:', err);
+    console.error('DB delete product failed:', err);
   }
-  revalidatePath("/dashboard/products");
-  revalidatePath("/products");
-  revalidatePath("/");
+  try {
+    revalidatePath("/dashboard/products");
+    revalidatePath("/products");
+    revalidatePath("/");
+  } catch {
+    // Ignore in non-request contexts
+  }
 }
 
 export async function deleteProductAction(formData: FormData) {
@@ -54,9 +62,11 @@ export async function createProduct(productData: Partial<Product>) {
     const payload = sanitizeProductPayload(productData);
 
     const created = await ProductModel.create(payload);
-    revalidatePath("/dashboard/products");
-    revalidatePath("/products");
-    revalidatePath("/");
+    try {
+      revalidatePath("/dashboard/products");
+      revalidatePath("/products");
+      revalidatePath("/");
+    } catch {}
     return { success: true, product: JSON.parse(JSON.stringify(created)) };
   } catch (err: any) {
     console.error('Error creating product:', err);
@@ -70,9 +80,11 @@ export async function updateProduct(id: string, productData: Partial<Product>) {
     const payload = sanitizeProductPayload(productData);
 
     await ProductModel.findByIdAndUpdate(id, payload);
-    revalidatePath("/dashboard/products");
-    revalidatePath("/products");
-    revalidatePath("/");
+    try {
+      revalidatePath("/dashboard/products");
+      revalidatePath("/products");
+      revalidatePath("/");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     console.error('Error updating product:', err);

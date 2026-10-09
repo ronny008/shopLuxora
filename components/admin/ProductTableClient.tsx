@@ -139,7 +139,14 @@ export function ProductTableClient({ initialProducts }: { initialProducts: Produ
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-bold tracking-wider uppercase flex justify-end items-center">
                     <Link href={`/dashboard/products/${product._id}/edit`} className="text-black hover:underline mr-4">Edit</Link>
-                    <form action={deleteProductAction}>
+                    <form 
+                      action={deleteProductAction}
+                      onSubmit={(e) => {
+                        if (!confirm(`Are you sure you want to delete "${product.name}"? This action cannot be undone.`)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
                       <input type="hidden" name="id" value={product._id} />
                       <button type="submit" className="text-red-600 hover:underline font-bold cursor-pointer">Delete</button>
                     </form>

@@ -1,24 +1,30 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { mockBrands } from "@/lib/mocks/data";
 import { Brand } from "@/types";
 import dbConnect from "@/lib/db/connect";
 import BrandModel from "@/lib/models/Brand";
+import mongoose from "mongoose";
+
+function safeRevalidate() {
+  try {
+    revalidatePath("/dashboard/brands");
+    revalidatePath("/");
+  } catch {}
+}
 
 export async function deleteBrand(id: string) {
   try {
     await dbConnect();
-    await BrandModel.findByIdAndDelete(id);
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      await BrandModel.findByIdAndDelete(id);
+    } else {
+      await BrandModel.deleteOne({ $or: [{ _id: id }] });
+    }
   } catch (err) {
-    console.warn('DB delete brand failed, fallback to mock:', err);
+    console.error('DB delete brand failed:', err);
   }
-
-  const index = mockBrands.findIndex((b) => b._id === id);
-  if (index !== -1) {
-    mockBrands.splice(index, 1);
-  }
-  revalidatePath("/dashboard/brands");
+  safeRevalidate();
 }
 
 export async function deleteBrandAction(formData: FormData) {
@@ -31,34 +37,29 @@ export async function deleteBrandAction(formData: FormData) {
 export async function createBrand(brandData: Partial<Brand>) {
   try {
     await dbConnect();
-    await BrandModel.create(brandData);
-  } catch (err) {
-    console.warn('DB create brand failed, fallback to mock:', err);
+    const created = await BrandModel.create({
+      name: brandData.name,
+      logo: brandData.logo,
+      description: brandData.description,
+      website: brandData.website,
+      status: brandData.status || 'active',
+    });
+    safeRevalidate();
+    return { success: true, brand: JSON.parse(JSON.stringify(created)) };
+  } catch (err: any) {
+    console.error('DB create brand failed:', err);
+    return { success: false, error: err.message };
   }
-
-  const newBrand: Brand = {
-    ...brandData,
-    _id: `b${Date.now()}`,
-  } as Brand;
-
-  mockBrands.unshift(newBrand);
-  revalidatePath("/dashboard/brands");
 }
 
 export async function updateBrand(id: string, brandData: Partial<Brand>) {
   try {
     await dbConnect();
     await BrandModel.findByIdAndUpdate(id, brandData);
-  } catch (err) {
-    console.warn('DB update brand failed, fallback to mock:', err);
+    safeRevalidate();
+    return { success: true };
+  } catch (err: any) {
+    console.error('DB update brand failed:', err);
+    return { success: false, error: err.message };
   }
-
-  const index = mockBrands.findIndex((b) => b._id === id);
-  if (index !== -1) {
-    mockBrands[index] = {
-      ...mockBrands[index],
-      ...brandData,
-    } as Brand;
-  }
-  revalidatePath("/dashboard/brands");
 }

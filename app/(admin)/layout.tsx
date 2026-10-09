@@ -132,6 +132,9 @@ export default function AdminLayout({
             <Link href="/dashboard/users" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
               Users
             </Link>
+            <Link href="/dashboard/landing-page" className="block px-4 py-3 border border-transparent hover:border-black hover:bg-black hover:text-white transition-colors">
+              Landing Page UI
+            </Link>
           </nav>
         </div>
         <div className="p-4 border-t border-black">

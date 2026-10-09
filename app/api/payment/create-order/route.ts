@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db/connect';
 import { ProductModel, OrderModel } from '@/lib/models';
-import { mockProducts } from '@/lib/mocks/data';
 import { getRazorpayClient } from '@/lib/razorpay';
 import { getAuthCookie, verifySessionToken } from '@/lib/auth';
 
@@ -65,15 +64,8 @@ export async function POST(req: NextRequest) {
       if (isDbConnected) {
         try {
           product = await ProductModel.findById(item.productId).lean();
-        } catch {
-          // If query fails, fallback to mock data
-        }
-      }
-
-      if (!product) {
-        const mockP = mockProducts.find((p) => p._id === item.productId);
-        if (mockP) {
-          product = { _id: mockP._id, price: mockP.price, name: mockP.name };
+        } catch (err) {
+          console.error('Error finding product in DB:', err);
         }
       }
 

@@ -1,24 +1,29 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { mockUsers } from "@/lib/mocks/data";
 import { User } from "@/types";
 import dbConnect from "@/lib/db/connect";
 import UserModel from "@/lib/models/User";
+import mongoose from "mongoose";
+
+function safeRevalidate() {
+  try {
+    revalidatePath("/dashboard/users");
+  } catch {}
+}
 
 export async function deleteUser(id: string) {
   try {
     await dbConnect();
-    await UserModel.findByIdAndDelete(id);
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      await UserModel.findByIdAndDelete(id);
+    } else {
+      await UserModel.deleteOne({ $or: [{ _id: id }, { email: id }] });
+    }
   } catch (err) {
-    console.warn('DB delete user failed, fallback to mock:', err);
+    console.error('DB delete user failed:', err);
   }
-
-  const index = mockUsers.findIndex((u) => u._id === id);
-  if (index !== -1) {
-    mockUsers.splice(index, 1);
-  }
-  revalidatePath("/dashboard/users");
+  safeRevalidate();
 }
 
 export async function deleteUserAction(formData: FormData) {
@@ -32,16 +37,10 @@ export async function updateUser(id: string, userData: Partial<User>) {
   try {
     await dbConnect();
     await UserModel.findByIdAndUpdate(id, userData);
-  } catch (err) {
-    console.warn('DB update user failed, fallback to mock:', err);
+    safeRevalidate();
+    return { success: true };
+  } catch (err: any) {
+    console.error('DB update user failed:', err);
+    return { success: false, error: err.message };
   }
-
-  const index = mockUsers.findIndex((u) => u._id === id);
-  if (index !== -1) {
-    mockUsers[index] = {
-      ...mockUsers[index],
-      ...userData,
-    } as User;
-  }
-  revalidatePath("/dashboard/users");
 }

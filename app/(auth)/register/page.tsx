@@ -21,7 +21,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'Customer' | 'Admin'>('Customer');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -162,13 +161,9 @@ export default function RegisterPage() {
       return;
     }
 
-    const result = await register(name.trim(), email.trim(), password, role);
+    const result = await register(name.trim(), email.trim(), password, 'Customer');
     if (result.success && result.user) {
-      if (result.user.role === 'Admin') {
-        router.push('/dashboard');
-      } else {
-        router.push('/profile');
-      }
+      router.push('/profile');
     }
   };
 
@@ -378,23 +373,6 @@ export default function RegisterPage() {
               Passwords match
             </p>
           )}
-        </div>
-
-        {/* Role Selection */}
-        <div>
-          <label htmlFor="role" className="block text-sm font-medium text-slate-700 mb-1">
-            Account Type
-          </label>
-          <select
-            id="role"
-            value={role}
-            suppressHydrationWarning
-            onChange={(e) => setRole(e.target.value as 'Customer' | 'Admin')}
-            className="block w-full rounded-xl border border-slate-300 px-4 py-2.5 text-slate-900 bg-white focus:border-black focus:ring-1 focus:ring-black outline-none transition-all text-sm"
-          >
-            <option value="Customer">Customer (Storefront)</option>
-            <option value="Admin">Administrator (Dashboard)</option>
-          </select>
         </div>
 
         <div>

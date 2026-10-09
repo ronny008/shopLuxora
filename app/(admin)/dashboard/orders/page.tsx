@@ -2,6 +2,9 @@ import { api } from '@/lib/services/api';
 import Link from 'next/link';
 import { updateOrderStatusAction } from './actions';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AdminOrdersPage() {
   const orders = await api.orders.getAll();
 

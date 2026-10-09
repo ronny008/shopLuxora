@@ -8,7 +8,7 @@ import {
   OrderModel,
 } from '../models';
 import { hashPassword } from '../auth';
-import { mockCategories, mockBrands, mockProducts, mockOrders } from '../mocks/data';
+import { initialCategories, initialBrands, initialProducts, initialOrders } from './seedData';
 
 export async function seedDatabase() {
   console.log('Connecting to MongoDB for seeding...');
@@ -73,7 +73,7 @@ export async function seedDatabase() {
 
   console.log('Seeding Categories...');
   const categoryMap = new Map<string, mongoose.Types.ObjectId>();
-  for (const cat of mockCategories) {
+  for (const cat of initialCategories) {
     const created = await CategoryModel.create({
       name: cat.name,
       slug: cat.slug,
@@ -86,7 +86,7 @@ export async function seedDatabase() {
 
   console.log('Seeding Brands...');
   const brandMap = new Map<string, mongoose.Types.ObjectId>();
-  for (const brand of mockBrands) {
+  for (const brand of initialBrands) {
     const created = await BrandModel.create({
       name: brand.name,
       logo: brand.logo,
@@ -99,7 +99,7 @@ export async function seedDatabase() {
 
   console.log('Seeding Products...');
   const productMap = new Map<string, mongoose.Types.ObjectId>();
-  for (const prod of mockProducts) {
+  for (const prod of initialProducts) {
     const catId = categoryMap.get(prod.categoryId) || Array.from(categoryMap.values())[0];
     const brandId = brandMap.get(prod.brandId) || Array.from(brandMap.values())[0];
 
@@ -125,7 +125,7 @@ export async function seedDatabase() {
   }
 
   console.log('Seeding Orders...');
-  for (const order of mockOrders) {
+  for (const order of initialOrders) {
     const userId = userMap.get(order.userId) || Array.from(userMap.values())[0];
     const items = order.items.map(item => ({
       productId: productMap.get(item.productId) || Array.from(productMap.values())[0],
